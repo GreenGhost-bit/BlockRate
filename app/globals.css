@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 245, 245, 245;
+  --primary: 0, 184, 148;
+  --primary-dark: 0, 148, 118;
+  --secondary: 45, 52, 54;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+}
+
+.font-poppins {
+  font-family: var(--font-poppins);
+}
+
+.font-inter {
+  font-family: var(--font-inter);
+}
+
+.bg-primary {
+  background-color: rgb(var(--primary));
+}
+
+.bg-primary-dark {
+  background-color: rgb(var(--primary-dark));
+}
+
+.text-primary {
+  color: rgb(var(--primary));
+}
+
+.border-primary {
+  border-color: rgb(var(--primary));
+}
+
+.hover\:bg-primary-dark:hover {
+  background-color: rgb(var(--primary-dark));
+}
+
+.rating-block {
+  @apply relative w-12 h-12 flex items-center justify-center border-2 rounded-md cursor-pointer transition-all duration-200;
+}
+
+.rating-block.active {
+  @apply bg-primary text-white border-transparent;
+}
+
+.rating-block:hover:not(.active) {
+  @apply border-primary;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
