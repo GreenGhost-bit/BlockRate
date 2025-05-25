@@ -11,35 +11,32 @@ export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
 
-  const isActive = (path: string) => {
-    return pathname === path
-  }
+  const isActive = (path: string) => pathname === path
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container mx-auto flex h-16 items-center justify-between px-6">
         <div className="flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Logo />
-            <span className="font-poppins text-xl font-bold">BlockRate</span>
+            <span className="font-poppins text-xl font-bold text-gray-900">BlockRate</span>
           </Link>
           <nav className="hidden md:flex items-center space-x-6">
-            <Link
-              href="/"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/") ? "text-primary" : "text-secondary"
-              }`}
-            >
-              Home
-            </Link>
-            <Link
-              href="/write-review"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/write-review") ? "text-primary" : "text-secondary"
-              }`}
-            >
-              Write a Review
-            </Link>
+            {[
+              { href: "/", label: "Home" },
+              { href: "/write-review", label: "Write a Review" },
+              { href: "/blogs", label: "Blogs" }
+            ].map(({ href, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive(href) ? "text-primary" : "text-gray-600"
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
             <div className="relative group">
               <button className="flex items-center text-sm font-medium transition-colors hover:text-primary">
                 Categories
@@ -47,102 +44,63 @@ export function Navbar() {
               </button>
               <div className="absolute left-0 top-full z-50 hidden w-64 rounded-md border bg-white p-2 shadow-md group-hover:block">
                 <div className="grid gap-1">
-                  <Link href="/categories/electronics" className="block rounded-md px-3 py-2 text-sm hover:bg-gray-100">
-                    Electronics
-                  </Link>
-                  <Link href="/categories/restaurants" className="block rounded-md px-3 py-2 text-sm hover:bg-gray-100">
-                    Restaurants
-                  </Link>
-                  <Link href="/categories/services" className="block rounded-md px-3 py-2 text-sm hover:bg-gray-100">
-                    Services
-                  </Link>
-                  <Link
-                    href="/categories"
-                    className="block rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-gray-100"
-                  >
+                  {[
+                    { href: "/categories/electronics", label: "Electronics" },
+                    { href: "/categories/restaurants", label: "Restaurants" },
+                    { href: "/categories/services", label: "Services" }
+                  ].map(({ href, label }) => (
+                    <Link key={href} href={href} className="block rounded-md px-3 py-2 text-sm hover:bg-gray-100">
+                      {label}
+                    </Link>
+                  ))}
+                  <Link href="/categories" className="block rounded-md px-3 py-2 text-sm font-medium text-primary hover:bg-gray-100">
                     View All Categories
                   </Link>
                 </div>
               </div>
             </div>
-            <Link
-              href="/blogs"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/blogs") ? "text-primary" : "text-secondary"
-              }`}
-            >
-              Blogs
-            </Link>
           </nav>
         </div>
         <div className="hidden md:flex items-center space-x-4">
-          <Link href="/login">
-            <Button variant="outline" className="h-9 border-primary text-primary hover:bg-primary hover:text-white">
-              Log in
-            </Button>
-          </Link>
-          <Link href="/signup">
-            <Button className="h-9 bg-primary text-white hover:bg-primary-dark">Sign up</Button>
-          </Link>
+          {[
+            { href: "/login", label: "Log in", variant: "outline" },
+            { href: "/signup", label: "Sign up", variant: "default" }
+          ].map(({ href, label, variant }) => (
+            <Link key={href} href={href}>
+              <Button variant={variant} className="h-9 border-primary text-primary hover:bg-primary hover:text-white">
+                {label}
+              </Button>
+            </Link>
+          ))}
         </div>
-        <button
-          className="flex items-center justify-center rounded-md p-2 md:hidden"
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-        >
-          {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        <button className="flex items-center justify-center rounded-md p-2 md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          {isMenuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
         </button>
       </div>
       {isMenuOpen && (
         <div className="container mx-auto md:hidden">
           <nav className="flex flex-col space-y-4 p-4">
-            <Link
-              href="/"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/") ? "text-primary" : "text-secondary"
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              href="/write-review"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/write-review") ? "text-primary" : "text-secondary"
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Write a Review
-            </Link>
-            <Link
-              href="/categories"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/categories") ? "text-primary" : "text-secondary"
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Categories
-            </Link>
-            <Link
-              href="/blogs"
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive("/blogs") ? "text-primary" : "text-secondary"
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Blogs
-            </Link>
+            {[
+              { href: "/", label: "Home" },
+              { href: "/write-review", label: "Write a Review" },
+              { href: "/categories", label: "Categories" },
+              { href: "/blogs", label: "Blogs" }
+            ].map(({ href, label }) => (
+              <Link key={href} href={href} className={`text-sm font-medium transition-colors hover:text-primary ${isActive(href) ? "text-primary" : "text-gray-600"}`} onClick={() => setIsMenuOpen(false)}>
+                {label}
+              </Link>
+            ))}
             <div className="flex flex-col space-y-2 pt-2">
-              <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                <Button
-                  variant="outline"
-                  className="w-full border-primary text-primary hover:bg-primary hover:text-white"
-                >
-                  Log in
-                </Button>
-              </Link>
-              <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
-                <Button className="w-full bg-primary text-white hover:bg-primary-dark">Sign up</Button>
-              </Link>
+              {[
+                { href: "/login", label: "Log in", variant: "outline" },
+                { href: "/signup", label: "Sign up", variant: "default" }
+              ].map(({ href, label, variant }) => (
+                <Link key={href} href={href} onClick={() => setIsMenuOpen(false)}>
+                  <Button variant={variant} className="w-full border-primary text-primary hover:bg-primary hover:text-white">
+                    {label}
+                  </Button>
+                </Link>
+              ))}
             </div>
           </nav>
         </div>
