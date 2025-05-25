@@ -1,28 +1,25 @@
 "use client"
 
-import type React from "react"
-
+import type { ReactNode, FormEvent } from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function CreateBlogPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{ title: string; content: string; tags: string }>({
     title: "",
     content: "",
     tags: "",
   })
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent): void => {
     e.preventDefault()
-    // Here you would normally send the data to your backend
     console.log("Blog submitted:", formData)
     setIsSubmitted(true)
   }
@@ -70,14 +67,10 @@ export default function CreateBlogPage() {
         </Link>
         <div className="rounded-lg border bg-white p-8 shadow-sm">
           <h1 className="text-2xl font-bold">Write a Blog Post</h1>
-          <p className="mt-2 text-gray-500">
-            Share your thoughts, insights, and experiences with the BlockRate community.
-          </p>
+          <p className="mt-2 text-gray-500">Share your thoughts, insights, and experiences with the BlockRate community.</p>
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-                Title *
-              </label>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title *</label>
               <input
                 id="title"
                 name="title"
@@ -89,9 +82,7 @@ export default function CreateBlogPage() {
               />
             </div>
             <div>
-              <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-                Content *
-              </label>
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700">Content *</label>
               <textarea
                 id="content"
                 name="content"
@@ -103,9 +94,7 @@ export default function CreateBlogPage() {
               />
             </div>
             <div>
-              <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
-                Tags (comma separated)
-              </label>
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-700">Tags (comma separated)</label>
               <input
                 id="tags"
                 name="tags"
