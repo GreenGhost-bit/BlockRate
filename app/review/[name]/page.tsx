@@ -1,33 +1,33 @@
 "use client"
 
-import type React from "react"
-
+import type { ReactNode, FormEvent } from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-export default function ReviewPage({ params }: { params: { name: string } }) {
-  const decodedName = decodeURIComponent(params.name)
+export default function ReviewPage({ params }: Readonly<{ params: { name: string } }>) {
+  const decodedName: string = decodeURIComponent(params.name)
 
-  const [rating, setRating] = useState(0)
-  const [review, setReview] = useState("")
-  const [anonymous, setAnonymous] = useState(false)
-  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [rating, setRating] = useState<number>(0)
+  const [review, setReview] = useState<string>("")
+  const [anonymous, setAnonymous] = useState<boolean>(false)
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
 
-  const handleRatingClick = (value: number) => {
+  const handleRatingClick = (value: number): void => {
     setRating(value)
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent): void => {
     e.preventDefault()
-    // Here you would normally send the data to your backend
+
     console.log("Review submitted:", {
       place: decodedName,
       rating,
       review,
-      anonymous,
+      anonymous
     })
+
     setIsSubmitted(true)
   }
 
