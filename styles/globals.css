@@ -1,94 +1,118 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+"use client"
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
+import type { ReactNode, FormEvent } from "react"
+import { useState } from "react"
+import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
+export default function CreateBlogPage() {
+  const [formData, setFormData] = useState<{ title: string; content: string; tags: string }>({
+    title: "",
+    content: "",
+    tags: "",
+  })
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false)
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
-  .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-  }
-}
 
-@layer base {
-  * {
-    @apply border-border;
+  const handleSubmit = (e: FormEvent): void => {
+    e.preventDefault()
+    console.log("Blog submitted:", formData)
+    setIsSubmitted(true)
   }
-  body {
-    @apply bg-background text-foreground;
+
+  if (isSubmitted) {
+    return (
+      <div className="container mx-auto px-4 py-16 md:px-6">
+        <div className="mx-auto max-w-2xl rounded-lg border bg-white p-8 shadow-sm">
+          <div className="flex flex-col items-center justify-center space-y-4 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+              <svg
+                className="h-8 w-8 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h1 className="text-2xl font-bold">Blog Post Published!</h1>
+            <p className="text-gray-500">Your blog post has been successfully published on BlockRate.</p>
+            <div className="flex flex-col gap-2 min-[400px]:flex-row">
+              <Link href="/blogs">
+                <Button className="bg-primary text-white hover:bg-primary-dark">View All Blogs</Button>
+              </Link>
+              <Link href="/">
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
+
+  return (
+    <div className="container mx-auto px-4 py-16 md:px-6">
+      <div className="mx-auto max-w-3xl">
+        <Link href="/blogs" className="inline-flex items-center text-sm text-primary hover:underline mb-6">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Blogs
+        </Link>
+        <div className="rounded-lg border bg-white p-8 shadow-sm">
+          <h1 className="text-2xl font-bold">Write a Blog Post</h1>
+          <p className="mt-2 text-gray-500">Share your thoughts, insights, and experiences with the BlockRate community.</p>
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title *</label>
+              <input
+                id="title"
+                name="title"
+                type="text"
+                required
+                value={formData.title}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700">Content *</label>
+              <textarea
+                id="content"
+                name="content"
+                rows={12}
+                required
+                value={formData.content}
+                onChange={handleChange}
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium text-gray-700">Tags (comma separated)</label>
+              <input
+                id="tags"
+                name="tags"
+                type="text"
+                value={formData.tags}
+                onChange={handleChange}
+                placeholder="blockchain, reviews, technology"
+                className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button type="submit" className="bg-primary text-white hover:bg-primary-dark">
+                Publish Blog Post
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  )
 }
