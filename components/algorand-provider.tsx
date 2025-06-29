@@ -1,257 +1,83 @@
 "use client"
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react"
-import { toast } from "@/hooks/use-toast"
-
-interface AlgoPrice {
-  usd: number
-  change24h: number
-}
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface Review {
-  id: string
-  businessName: string
-  rating: number
-  content: string
-  author: string
-  txId: string
-  timestamp: Date
-  verified: boolean
-  assetId?: number
+  id: string;
+  businessName: string;
+  rating: number;
+  content: string;
+  author: string;
+  txId: string;
+  timestamp: Date;
+  verified: boolean;
+  assetId?: number;
 }
 
-interface AlgorandState {
-  isConnected: boolean
-  account: string | null
-  balance: number
-  algoPrice: AlgoPrice
-  reviews: Review[]
-  totalReviewsOnChain: number
-  governanceVotingPower: number
-  reputationScore: number
+interface AlgorandContextType {
+  isConnected: boolean;
+  address: string | null;
+  balance: number;
+  reviews: Review[];
+  connectWallet: () => Promise<void>;
+  disconnectWallet: () => void;
+  submitReview: (review: Omit<Review, 'id' | 'timestamp' | 'txId' | 'verified'>) => Promise<void>;
 }
 
-interface AlgorandContextType extends AlgorandState {
-  connectWallet: () => Promise<boolean>
-  disconnectWallet: () => void
-  submitReview: (businessName: string, rating: number, content: string) => Promise<boolean>
-  voteOnReview: (reviewId: string, vote: 'helpful' | 'spam') => Promise<boolean>
-  claimRewards: () => Promise<boolean>
-  getBusinessReviews: (businessName: string) => Review[]
-  refreshData: () => Promise<void>
-}
-
-const AlgorandContext = createContext<AlgorandContextType | undefined>(undefined)
-
-export function useAlgorand() {
-  const context = useContext(AlgorandContext)
-  if (!context) {
-    throw new Error("useAlgorand must be used within AlgorandProvider")
-  }
-  return context
-}
+const AlgorandContext = createContext<AlgorandContextType | undefined>(undefined);
 
 export function AlgorandProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<AlgorandState>({
-    isConnected: false,
-    account: null,
-    balance: 0,
-    algoPrice: { usd: 0.32, change24h: 2.45 },
-    reviews: [],
-    totalReviewsOnChain: 12847,
-    governanceVotingPower: 0,
-    reputationScore: 0,
-  })
+  const [isConnected, setIsConnected] = useState(false);
+  const [address, setAddress] = useState<string | null>(null);
+  const [balance, setBalance] = useState(0);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
-  const fetchAlgoPrice = async () => {
-    try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=algorand&vs_currencies=usd&include_24hr_change=true')
-      const data = await response.json()
-      setState(prev => ({
-        ...prev,
-        algoPrice: {
-          usd: data.algorand.usd,
-          change24h: data.algorand.usd_24h_change
-        }
-      }))
-    } catch (error) {
-      console.error('Failed to fetch ALGO price:', error)
-    }
-  }
-
-  const connectWallet = async (): Promise<boolean> => {
-    try {
-      if (typeof window !== 'undefined' && window.AlgoSigner) {
-        await window.AlgoSigner.connect()
-        const accounts = await window.AlgoSigner.accounts({ ledger: 'MainNet' })
-        
-        if (accounts.length > 0) {
-          const account = accounts[0].address
-          const accountInfo = await window.AlgoSigner.algod({
-            ledger: 'MainNet',
-            path: '/v2/accounts/' + account
-          })
-          
-          setState(prev => ({
-            ...prev,
-            isConnected: true,
-            account,
-            balance: accountInfo.amount / 1000000,
-            governanceVotingPower: Math.floor(accountInfo.amount / 1000000),
-            reputationScore: 750 + Math.floor(Math.random() * 250)
-          }))
-
-          toast({
-            title: "Wallet Connected! 🎉",
-            description: `Connected to ${account.slice(0, 8)}...${account.slice(-6)}`
-          })
-          
-          return true
-        }
-      } else {
-        toast({
-          title: "AlgoSigner Required",
-          description: "Please install AlgoSigner wallet extension"
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Connection Failed",
-        description: "Failed to connect to Algorand wallet"
-      })
-    }
-    return false
-  }
+  const connectWallet = async () => {
+    // Simulate wallet connection
+    setTimeout(() => {
+      setIsConnected(true);
+      setAddress('ALGO7X8KMNQPABCDEFGHIJKLMNOPQRSTUVWXYZ123456789');
+      setBalance(127.5);
+    }, 1000);
+  };
 
   const disconnectWallet = () => {
-    setState(prev => ({
-      ...prev,
-      isConnected: false,
-      account: null,
-      balance: 0,
-      governanceVotingPower: 0,
-      reputationScore: 0
-    }))
+    setIsConnected(false);
+    setAddress(null);
+    setBalance(0);
+  };
+
+  const submitReview = async (reviewData: Omit<Review, 'id' | 'timestamp' | 'txId' | 'verified'>) => {
+    const newReview: Review = {
+      ...reviewData,
+      id: Math.random().toString(36).substr(2, 9),
+      timestamp: new Date(),
+      txId: 'TXN' + Math.random().toString(36).substr(2, 12).toUpperCase(),
+      verified: true
+    };
     
-    toast({
-      title: "Wallet Disconnected",
-      description: "Your Algorand wallet has been disconnected"
-    })
-  }
-
-  const submitReview = async (businessName: string, rating: number, content: string): Promise<boolean> => {
-    if (!state.isConnected || !state.account) {
-      toast({
-        title: "Wallet Required",
-        description: "Please connect your wallet to submit reviews"
-      })
-      return false
-    }
-
-    try {
-      const newReview: Review = {
-        id: Date.now().toString(),
-        businessName,
-        rating,
-        content,
-        author: state.account,
-        txId: `TXN${Date.now()}${Math.random().toString(36).substr(2, 9)}`,
-        timestamp: new Date(),
-        verified: true,
-        assetId: 12345
-      }
-
-      setState(prev => ({
-        ...prev,
-        reviews: [newReview, ...prev.reviews],
-        totalReviewsOnChain: prev.totalReviewsOnChain + 1,
-        reputationScore: prev.reputationScore + 10
-      }))
-
-      toast({
-        title: "Review Submitted! ✅",
-        description: `Review recorded on Algorand blockchain`
-      })
-
-      return true
-    } catch (error) {
-      toast({
-        title: "Submission Failed",
-        description: "Failed to submit review to blockchain"
-      })
-      return false
-    }
-  }
-
-  const voteOnReview = async (reviewId: string, vote: 'helpful' | 'spam'): Promise<boolean> => {
-    if (!state.isConnected) {
-      toast({
-        title: "Wallet Required",
-        description: "Connect wallet to vote on reviews"
-      })
-      return false
-    }
-
-    toast({
-      title: `Vote Cast! ${vote === 'helpful' ? '👍' : '👎'}`,
-      description: `Your ${vote} vote has been recorded on-chain`
-    })
-
-    return true
-  }
-
-  const claimRewards = async (): Promise<boolean> => {
-    if (!state.isConnected) return false
-
-    const rewardAmount = 2.5 + Math.random() * 5
-    
-    setState(prev => ({
-      ...prev,
-      balance: prev.balance + rewardAmount
-    }))
-
-    toast({
-      title: "Rewards Claimed! 🎁",
-      description: `+${rewardAmount.toFixed(2)} ALGO for quality reviews`
-    })
-
-    return true
-  }
-
-  const getBusinessReviews = (businessName: string): Review[] => {
-    return state.reviews.filter(review => 
-      review.businessName.toLowerCase().includes(businessName.toLowerCase())
-    )
-  }
-
-  const refreshData = async () => {
-    await fetchAlgoPrice()
-    setState(prev => ({
-      ...prev,
-      totalReviewsOnChain: prev.totalReviewsOnChain + Math.floor(Math.random() * 3)
-    }))
-  }
-
-  useEffect(() => {
-    fetchAlgoPrice()
-    const interval = setInterval(fetchAlgoPrice, 30000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const contextValue: AlgorandContextType = {
-    ...state,
-    connectWallet,
-    disconnectWallet,
-    submitReview,
-    voteOnReview,
-    claimRewards,
-    getBusinessReviews,
-    refreshData,
-  }
+    setReviews(prev => [newReview, ...prev]);
+  };
 
   return (
-    <AlgorandContext.Provider value={contextValue}>
+    <AlgorandContext.Provider value={{
+      isConnected,
+      address,
+      balance,
+      reviews,
+      connectWallet,
+      disconnectWallet,
+      submitReview
+    }}>
       {children}
     </AlgorandContext.Provider>
-  )
+  );
+}
+
+export function useAlgorand() {
+  const context = useContext(AlgorandContext);
+  if (context === undefined) {
+    throw new Error('useAlgorand must be used within an AlgorandProvider');
+  }
+  return context;
 }
